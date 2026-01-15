@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="PetStoreRestSharp/PetStoreRestSharp.csproj" />
+  <Project Path="RESTAPITests/RESTAPITests.csproj" Id="c497fcc2-21df-4a2c-85f0-9647803923c0">
+    <BuildDependency Project="PetStoreRestSharp/PetStoreRestSharp.csproj" />
+  </Project>
+</Solution>
