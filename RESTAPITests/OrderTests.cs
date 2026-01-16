@@ -11,6 +11,7 @@ public class OrderTests
     [SetUp]
     public void Setup()
     {
+
     }
 
     [Test]
@@ -41,7 +42,7 @@ public class OrderTests
     public async Task GetOrderByIdTest()
     {
         // Arrange
-        long orderId = 2;
+        long orderId = 3;
 
         // Act
         Console.WriteLine($"Getting order with ID {orderId}...");
@@ -60,7 +61,7 @@ public class OrderTests
         // Arrange
         long orderId = 10;
 
-        // Act
+        // Act 
         Console.WriteLine($"Deleting order with ID {orderId}...");
         await _globalOrder.DeleteOrderByIdAsync(orderId);
 
