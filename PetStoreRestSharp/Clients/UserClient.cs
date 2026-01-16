@@ -1,20 +1,16 @@
 ﻿using PetStoreRestSharp.Models;
 using RestSharp;
+using System.Net;
 
 namespace PetStoreRestSharp.Clients
 {
-    public class UserClient
+    public class UserClient : BaseClient
     {
-        private readonly RestClient _client;
-        public UserClient()
-        {
-            _client = new RestClient("https://petstore.swagger.io/v2/user/");
-        }
+        public UserClient() : base(new Uri("https://petstore.swagger.io/v2/")) { }
+
         public async Task<User?> CreateUserWithListAsync(List<User> list)
         {
-            var request = new RestRequest("createWithList", Method.Post);
-            request.AddJsonBody(list);
-            var response = await _client.ExecuteAsync(request);
+            var response = ExecuteWithoutDeserialization(Method.Post, "user/createWithList", list, HttpStatusCode.OK);
             if (response.IsSuccessful)
             {
                 return list.FirstOrDefault();
@@ -24,53 +20,46 @@ namespace PetStoreRestSharp.Clients
                 throw new Exception($"Error creating users with list: {response.ErrorMessage ?? response.StatusDescription}");
             }
         }
+
         public async Task<User?> GetUserByUsernameAsync(string username)
         {
-            var request = new RestRequest($"{username}", Method.Get);
-
-            var response = await _client.ExecuteAsync<User>(request);
-            if (response.IsSuccessful)
-            {
-                return response.Data;
-            }
-            else
-            {
-                throw new Exception($"Error retrieving user by username: {response.ErrorMessage ?? response.StatusDescription}");
-            }
+            var user = ExecuteWithDeserialization<User>(Method.Get, $"user/{username}", null, HttpStatusCode.OK);
+            return await Task.FromResult(user);
         }
+
         public async Task<User?> UpdateUserAsync(string username, User user)
         {
-            var request = new RestRequest($"{username}", Method.Put);
-            request.AddJsonBody(user);
-            var response = await _client.ExecuteAsync<User>(request);
+            var response = ExecuteWithoutDeserialization(Method.Put, $"user/{username}", user, HttpStatusCode.OK);
             if (response.IsSuccessful)
             {
-                return response.Data;
+                return user;
             }
             else
             {
                 throw new Exception($"Error updating user: {response.ErrorMessage ?? response.StatusDescription}");
             }
         }
+
         public async Task<User?> DeleteUserByUsernameAsync(string username)
         {
-            var request = new RestRequest($"{username}", Method.Delete);
-            var response = await _client.ExecuteAsync<User>(request);
+            var response = ExecuteWithoutDeserialization(Method.Delete, $"user/{username}", null, HttpStatusCode.OK);
             if (response.IsSuccessful)
             {
-                return response.Data;
+                return null;
             }
             else
             {
                 throw new Exception($"Error deleting user by username: {response.ErrorMessage ?? response.StatusDescription}");
             }
         }
+
         public async Task<string?> LogInUserAsync(string username, string password)
         {
-            var request = new RestRequest("login", Method.Get);
+            var request = new RestRequest("user/login", Method.Get);
             request.AddParameter("username", username);
             request.AddParameter("password", password);
-            var response = await _client.ExecuteAsync(request);
+
+            var response = Execute(request, "user/login", null, HttpStatusCode.OK);
             if (response.IsSuccessful)
             {
                 return response.Content;
@@ -80,10 +69,10 @@ namespace PetStoreRestSharp.Clients
                 throw new Exception($"Error logging in user: {response.ErrorMessage ?? response.StatusDescription}");
             }
         }
+
         public async Task<string?> LogOutUserAsync()
         {
-            var request = new RestRequest("logout", Method.Get);
-            var response = await _client.ExecuteAsync(request);
+            var response = ExecuteWithoutDeserialization(Method.Get, "user/logout", null, HttpStatusCode.OK);
             if (response.IsSuccessful)
             {
                 return response.Content;
@@ -92,13 +81,10 @@ namespace PetStoreRestSharp.Clients
             {
                 throw new Exception($"Error logging out user: {response.ErrorMessage ?? response.StatusDescription}");
             }
-
         }
         public async Task<User?> CreateUserWithArrayAsync(User[] users)
         {
-            var request = new RestRequest("createWithArray", Method.Post);
-            request.AddJsonBody(users);
-            var response = await _client.ExecuteAsync(request);
+            var response = ExecuteWithoutDeserialization(Method.Post, "user/createWithArray", users, HttpStatusCode.OK);
             if (response.IsSuccessful)
             {
                 return users.FirstOrDefault();
@@ -108,11 +94,10 @@ namespace PetStoreRestSharp.Clients
                 throw new Exception($"Error creating users with array: {response.ErrorMessage ?? response.StatusDescription}");
             }
         }
+
         public async Task<User?> CreateUserAsync(User user)
         {
-            var request = new RestRequest("", Method.Post);
-            request.AddJsonBody(user);
-            var response = await _client.ExecuteAsync(request);
+            var response = ExecuteWithoutDeserialization(Method.Post, "user", user, HttpStatusCode.OK);
             if (response.IsSuccessful)
             {
                 return user;
