@@ -31,11 +31,7 @@ namespace PetStoreRestSharp.Clients
             var request = new RestRequest("pet/findByStatus", Method.Get);
             request.AddParameter("status", status);
             var response = Execute(request, "pet/findByStatus", null, HttpStatusCode.OK);
-            return await HandleResponseAsync(response, async () =>
-            {
-                var list = DeserializeResponse<List<Pet>>(response);
-                return list?.FirstOrDefault();
-            }, $"Error finding pets by status '{status}'");
+            return await HandleResponseAsync(response, async () => 
         }
 
         public async Task<Pet?> CreatePetByIdAsync(Pet newPet, long petId)
@@ -46,26 +42,27 @@ namespace PetStoreRestSharp.Clients
 
         public async Task<Pet?> DeletePetByIdAsync(long petId)
         {
-            var buffPet = await GetPetByIdAsync(petId);
-            var response = ExecuteWithoutDeserialization(Method.Delete, $"pet/{petId}", null, HttpStatusCode.OK);
-            return await HandleResponseAsync(response, async () =>
-            {
-                if (buffPet != null)
-                {
-                    await CreatePetAsync(buffPet);
-                }
-                return (Pet?)null;
-            }, $"Error deleting pet with ID {petId}");
+            var request = new RestRequest($"pet/{petId}", Method.Delete);
+            Pet buffPet = await GetPetByIdAsync(petId);
+            var response = await _client.ExecuteAsync<Pet>(request);
+
         }
 
         public async Task<Pet?> UploadPetImageByIdAsync(long petId, string imagePath)
         {
             var request = new RestRequest($"pet/{petId}/uploadImage", Method.Post);
             request.AddFile("file", imagePath);
-            var response = Execute(request, $"pet/{petId}/uploadImage", null, HttpStatusCode.OK);
-            var pet = await HandleResponseAsync(response, async () => DeserializeResponse<Pet>(response),
-            $"Error uploading image for pet with ID {petId}");
-            return await Task.FromResult(pet);
+
+            var response = await _client.ExecuteAsync<Pet>(request);
+
+            if (response.IsSuccessful)
+            {
+                return response.Data;
+            }
+            else
+            {
+                throw new Exception($"Error uploading image for pet with ID {petId}: {response.ErrorMessage}");
+            }
         }
     }
 }
