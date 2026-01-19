@@ -12,10 +12,4 @@
     <PackageReference Include="RestSharp" Version="113.1.0" />
   </ItemGroup>
 
-  <ItemGroup>
-    <None Update="Images\jaddu.jpg">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-
 </Project>
