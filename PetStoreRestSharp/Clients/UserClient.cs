@@ -1,62 +1,126 @@
 ﻿using PetStoreRestSharp.Models;
 using RestSharp;
-using System.Net;
 
 namespace PetStoreRestSharp.Clients
 {
-    public class UserClient : BaseClient
+    public class UserClient
     {
-        public UserClient() : base(new Uri("https://petstore.swagger.io/v2/")) { }
-
+        private readonly RestClient _client;
+        public UserClient()
+        {
+            _client = new RestClient("https://petstore.swagger.io/v2/user/");
+        }
         public async Task<User?> CreateUserWithListAsync(List<User> list)
         {
-            var response = ExecuteWithoutDeserialization(Method.Post, "user/createWithList", list, HttpStatusCode.OK);
-            return await HandleResponseAsync(response, async () => list.FirstOrDefault(), "Error creating users with list");
+            var request = new RestRequest("createWithList", Method.Post);
+            request.AddJsonBody(list);
+            var response = await _client.ExecuteAsync(request);
+            if (response.IsSuccessful)
+            {
+                return list.FirstOrDefault();
+            }
+            else
+            {
+                throw new Exception($"Error creating users with list: {response.ErrorMessage ?? response.StatusDescription}");
+            }
         }
-
         public async Task<User?> GetUserByUsernameAsync(string username)
         {
-            var user = ExecuteWithDeserialization<User>(Method.Get, $"user/{username}", null, HttpStatusCode.OK);
-            return await Task.FromResult(user);
-        }
+            var request = new RestRequest($"{username}", Method.Get);
 
+            var response = await _client.ExecuteAsync<User>(request);
+            if (response.IsSuccessful)
+            {
+                return response.Data;
+            }
+            else
+            {
+                throw new Exception($"Error retrieving user by username: {response.ErrorMessage ?? response.StatusDescription}");
+            }
+        }
         public async Task<User?> UpdateUserAsync(string username, User user)
         {
-            var response = ExecuteWithoutDeserialization(Method.Put, $"user/{username}", user, HttpStatusCode.OK);
-            return await HandleResponseAsync(response, async () => user, "Error updating user");
+            var request = new RestRequest($"{username}", Method.Put);
+            request.AddJsonBody(user);
+            var response = await _client.ExecuteAsync<User>(request);
+            if (response.IsSuccessful)
+            {
+                return response.Data;
+            }
+            else
+            {
+                throw new Exception($"Error updating user: {response.ErrorMessage ?? response.StatusDescription}");
+            }
         }
-
         public async Task<User?> DeleteUserByUsernameAsync(string username)
         {
-            var response = ExecuteWithoutDeserialization(Method.Delete, $"user/{username}", null, HttpStatusCode.OK);
-            return await HandleResponseAsync(response, async () => (User?)null, "Error deleting user by username");
+            var request = new RestRequest($"{username}", Method.Delete);
+            var response = await _client.ExecuteAsync<User>(request);
+            if (response.IsSuccessful)
+            {
+                return response.Data;
+            }
+            else
+            {
+                throw new Exception($"Error deleting user by username: {response.ErrorMessage ?? response.StatusDescription}");
+            }
         }
-
         public async Task<string?> LogInUserAsync(string username, string password)
         {
-            var request = new RestRequest("user/login", Method.Get);
+            var request = new RestRequest("login", Method.Get);
             request.AddParameter("username", username);
             request.AddParameter("password", password);
-
-            var response = Execute(request, "user/login", null, HttpStatusCode.OK);
-            return await HandleResponseAsync(response, async () => response.Content, "Error logging in user");
+            var response = await _client.ExecuteAsync(request);
+            if (response.IsSuccessful)
+            {
+                return response.Content;
+            }
+            else
+            {
+                throw new Exception($"Error logging in user: {response.ErrorMessage ?? response.StatusDescription}");
+            }
         }
-
         public async Task<string?> LogOutUserAsync()
         {
-            var response = ExecuteWithoutDeserialization(Method.Get, "user/logout", null, HttpStatusCode.OK);
-            return await HandleResponseAsync(response, async () => response.Content, "Error logging out user");
+            var request = new RestRequest("logout", Method.Get);
+            var response = await _client.ExecuteAsync(request);
+            if (response.IsSuccessful)
+            {
+                return response.Content;
+            }
+            else
+            {
+                throw new Exception($"Error logging out user: {response.ErrorMessage ?? response.StatusDescription}");
+            }
+
         }
         public async Task<User?> CreateUserWithArrayAsync(User[] users)
         {
-            var response = ExecuteWithoutDeserialization(Method.Post, "user/createWithArray", users, HttpStatusCode.OK);
-            return await HandleResponseAsync(response, async () => users.FirstOrDefault(), "Error creating users with array");
+            var request = new RestRequest("createWithArray", Method.Post);
+            request.AddJsonBody(users);
+            var response = await _client.ExecuteAsync(request);
+            if (response.IsSuccessful)
+            {
+                return users.FirstOrDefault();
+            }
+            else
+            {
+                throw new Exception($"Error creating users with array: {response.ErrorMessage ?? response.StatusDescription}");
+            }
         }
-
         public async Task<User?> CreateUserAsync(User user)
         {
-            var response = ExecuteWithoutDeserialization(Method.Post, "user", user, HttpStatusCode.OK);
-            return await HandleResponseAsync(response, async () => user, "Error creating user");
+            var request = new RestRequest("", Method.Post);
+            request.AddJsonBody(user);
+            var response = await _client.ExecuteAsync(request);
+            if (response.IsSuccessful)
+            {
+                return user;
+            }
+            else
+            {
+                throw new Exception($"Error creating user: {response.ErrorMessage ?? response.StatusDescription}");
+            }
         }
     }
 }

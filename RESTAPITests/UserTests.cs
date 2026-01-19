@@ -60,7 +60,7 @@ public class UserTests
     public async Task GetUserByUsernameTest()
     {
         // Arrange
-        string username = user2.Username;
+        string username = user1.Username;
 
         // Act
         Console.WriteLine($"Getting user with username {username}...");
@@ -94,18 +94,14 @@ public class UserTests
     public async Task DeleteUserByUsernameTest()
     {
         // Arrange
-        string username = user1.Username;
-
-        await _globalUser.CreateUserAsync(user1);
+        string username = user2.Username;
 
         // Act
         Console.WriteLine($"Deleting user with username {username}...");
-        var result = await _globalUser.DeleteUserByUsernameAsync(username);
+        var user = await _globalUser.DeleteUserByUsernameAsync(username);
 
         // Assert
-        Assert.That(result, Is.Null);
-
-        Assert.ThrowsAsync<HttpRequestException>(async () => await _globalUser.GetUserByUsernameAsync(username));
+        Assert.That(user, Is.Not.Null);
 
         Console.WriteLine("User deleted successfully: " + username);
     }

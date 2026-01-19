@@ -17,7 +17,7 @@ namespace RESTAPITests
         public async Task GetPetByIdTest()
         {
             // Arrange
-            int petId = 9;
+            int petId = 8;
 
             // Act
             Console.WriteLine($"Getting pet with ID {petId}...");

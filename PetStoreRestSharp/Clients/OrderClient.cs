@@ -1,30 +1,61 @@
 ﻿using PetStoreRestSharp.Models;
 using RestSharp;
-using System.Net;
 
 namespace PetStoreRestSharp.Clients
 {
-    public class OrderClient : BaseClient
+    public class OrderClient
     {
-        public OrderClient() : base(new Uri("https://petstore.swagger.io/v2/")) { }
+        private readonly RestClient _client;
+
+        public OrderClient()
+        {
+            _client = new RestClient("https://petstore.swagger.io/v2/store/order/");
+        }
 
         public async Task<Order?> CreateOrderAsync(Order newOrder)
         {
-            var order = ExecuteWithDeserialization<Order>(Method.Post, "store/order", newOrder, HttpStatusCode.OK);
-            return await Task.FromResult(order);
-        }
+            var request = new RestRequest("", Method.Post);
+            request.AddJsonBody(newOrder);
 
+            var response = await _client.ExecuteAsync<Order>(request);
+
+            if (response.IsSuccessful)
+            {
+                return response.Data;
+            }
+            else
+            {
+                throw new Exception($"Error creating order: {response.ErrorMessage}");
+            }
+        }
         public async Task<Order?> GetOrderByIdAsync(long orderId)
         {
-            var order = ExecuteWithDeserialization<Order>(Method.Get, $"store/order/{orderId}", null, HttpStatusCode.OK);
-            return await Task.FromResult(order);
-        }
+            var request = new RestRequest($"{orderId}", Method.Get);
 
+            var response = await _client.ExecuteAsync<Order>(request);
+            if (response.IsSuccessful)
+            {
+                return response.Data;
+            }
+            else
+            {
+                throw new Exception($"Error getting order with id: {orderId} : {response.ErrorMessage}");
+            }
+        }
         public async Task<Order?> DeleteOrderByIdAsync(long orderId)
         {
-            var buffOrder = await GetOrderByIdAsync(orderId);
-            var response = ExecuteWithoutDeserialization(Method.Delete, $"store/order/{orderId}", null, HttpStatusCode.OK);
-            return await HandleResponseAsync(response, async () => (Order?)null, "Error deleting order by id");
+            var request = new RestRequest($"{orderId}", Method.Delete);
+            Order buffOrder = await GetOrderByIdAsync(orderId);
+            var response = await _client.ExecuteAsync<Order>(request);
+            if (response.IsSuccessful)
+            {
+                CreateOrderAsync(buffOrder);
+                return response.Data;
+            }
+            else
+            {
+                throw new Exception($"Error deleting order with id: {orderId} : {response.ErrorMessage}");
+            }
         }
     }
 }
