@@ -26,6 +26,11 @@ namespace PetStoreRestSharp.Clients
             var response = ExecuteWithoutDeserialization(Method.Delete, $"store/order/{orderId}", null, HttpStatusCode.OK);
             return await HandleResponseAsync(response, async () => (Order?)null, "Error deleting order by id");
         }
+
+        public async Task<Order> GetOrderByIdAsync(object orderId)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
 
